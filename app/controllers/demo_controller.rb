@@ -7,4 +7,7 @@ class DemoController < ApplicationController
 
   def over
   end
+
+  def test
+  end
 end

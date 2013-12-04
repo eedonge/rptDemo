@@ -2,6 +2,8 @@ RptDemo::Application.routes.draw do
   get "demo/index"
   get "demo/flower"
   get "demo/over"
+  get "demo/test"
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
