@@ -30,6 +30,9 @@ d3.json("/readme.json", function(json) {
     var force = d3.layout.force()
         .nodes(json.nodes)
         .links(json.links)
+        .gravity(.05)
+        .distance(80)
+        .charge(-50)
         .size([w, h])
         .start();
 
