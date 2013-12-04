@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style type="text/css">
+
+.link {
+  stroke: #ccc;
+  stroke-width: 1px;
+  stroke-opacity: 1.0;
+}
+
+.link_o {
+  stroke: blue;
+  stroke-width: 1.5px;
+  stroke-opacity: 1.0;
+}
+
+</style>
+<body>
+<a href="javascript:history.back();">BACK</a>
+<script>
+
+var w = 1000,
+    h = 700
+
+var vis = d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+
+d3.json("/readme.json", function(json) {
+    var force = d3.layout.force()
+        .nodes(json.nodes)
+        .links(json.links)
+        .size([w, h])
+        .start();
+
+    var link = vis.selectAll("line.link")
+        .data(json.links)
+      .enter().append("svg:line")
+        .attr("class", "link");
+
+    var node = vis.selectAll("g.node")
+        .data(json.nodes)
+      .enter().append("svg:g")
+        .attr("class", "node")
+        .call(force.drag);
+
+    node.append("svg:image")
+        .attr("class", "circle")
+        .attr("xlink:href", "http://i.imgur.com/0IINF6tb.jpg")
+        .attr("x", "-13px")
+        .attr("y", "-13px")
+        .attr("width", "26px")
+        .attr("height", "26px")
+        .on("mouseover", mouseOverFunction)
+        .on("mouseout", mouseOutFunction);
+
+    node.append("svg:title")
+        .text(function(d) { return d.name; });
+
+    force.on("tick", function() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    });
+
+
+    function mouseOverFunction(d) {
+      node
+        .on("mouseout", mouseOutFunction);
+      //event unbind ????????????????????
+
+      link
+        .transition(500)
+          .attr("class", function(o) {
+            return o.source === d || o.target === d ? "link_o" : "link";
+          });
+
+      var img = d3.select(this);
+
+      img
+        .transition(500)
+          .attr("x", "-28px")
+          .attr("y", "-28px")
+          .attr('width', '56px')
+          .attr('height', '56px');
+    }
+
+    function mouseOutFunction(d) {
+      link
+        .transition(500)
+          .attr("class", "link");
+
+      var img = d3.select(this);
+
+      img
+        .transition(500)
+          .attr("x", "-13px")
+          .attr("y", "-13px")
+          .attr('width', '26px')
+          .attr('height', '26px');
+    }
+});
+</script>
