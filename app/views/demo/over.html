@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style type="text/css">
+
+.link {
+  stroke: #ccc;
+  stroke-width: 1px;
+  stroke-opacity: 1.0;
+}
+
+.link_o {
+  stroke: blue;
+  stroke-width: 1.5px;
+  stroke-opacity: 1.0;
+}
+
+</style>
+<script src="d3.min.js"></script>
+<body>
+<a href="/">BACK</a>
+<script>
+
+var w = 1000,
+    h = 700
+
+var vis = d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
+
+d3.json("/readme.json", function(json) {
+    var force = d3.layout.force()
+        .nodes(json.nodes)
+        .links(json.links)
+        .gravity(.05)
+        .distance(200)
+        .charge(-200)
+        .size([w, h])
+        .start();
+
+    var link = vis.selectAll("line.link")
+        .data(json.links)
+      .enter().append("svg:line")
+        .attr("class", "link");
+
+    var node = vis.selectAll("g.node")
+        .data(json.nodes)
+      .enter().append("svg:g")
+        .attr("class", "node")
+        .call(force.drag);
+
+    node.append("svg:image")
+        .attr("class", "circle")
+        .attr("xlink:href", "http://i.imgur.com/0IINF6tb.jpg")
+        .attr("x", "-13px")
+        .attr("y", "-13px")
+        .attr("width", "26px")
+        .attr("height", "26px")
+        .on("mouseover", mouseOverFunction)
+        .on("mouseout", mouseOutFunction);
+
+    node.append("svg:title")
+        .text(function(d) { return d.name; });
+
+    force.on("tick", function() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    });
+
+
+    function mouseOverFunction(d) {
+      node
+        .on("mouseout", mouseOutFunction);
+      //event unbind ????????????????????
+
+      link
+        .transition(500)
+          .attr("class", function(o) {
+            return o.source === d || o.target === d ? "link_o" : "link";
+          });
+
+      var img = d3.select(this);
+
+      img
+        .transition(500)
+          .attr("x", "-28px")
+          .attr("y", "-28px")
+          .attr('width', '56px')
+          .attr('height', '56px');
+    }
+
+    function mouseOutFunction(d) {
+      link
+        .transition(500)
+          .attr("class", "link");
+
+      var img = d3.select(this);
+
+      img
+        .transition(500)
+          .attr("x", "-13px")
+          .attr("y", "-13px")
+          .attr('width', '26px')
+          .attr('height', '26px');
+    }
+});
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46194758-1', 'heroku.com');
+  ga('send', 'pageview');
+
+</script>
